@@ -4,8 +4,8 @@
 Princeton COS 426 Particle System implementation
 
 ##Features
-- [ ] Euler Integration
-- [ ] Sphere Particle Sources
+- [x] Euler Integration
+- [x] Sphere Particle Sources
 - [ ] Sphere Particle Sinks
 - [ ] Particle Scene Collisions
 - [ ] Springs
