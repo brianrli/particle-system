@@ -109,7 +109,6 @@ void GenerateParticles(R3Scene *scene, double current_time, double delta_time)
         V.Rotate(V1,acos(t2));
         V.Normalize();
 
-        R3Vector v = circle->Normal();
         // std::cout << V.X() << " " << V.Y() << " " << V.Z() << "\n";
         // std::cout << W.X() << " " << W.Y() << " " << W.Z() << "\n";
         // std::cout << v.X() << " " << v.Y() << " " << v.Z() << "\n";
@@ -158,27 +157,78 @@ void UpdateParticles(R3Scene *scene, double current_time, double delta_time, int
 
   // FILL IN CODE HERE
   //for every particle
+  bool deleted = false;
+
   for (int i = 0; i < scene->NParticles(); i++) {
     R3Particle *particle = scene->Particle(i);
     R3Vector force = R3Vector(0,0,0); 
 
-    // for (int j = 0; j < 3; j++)
-    //   std::cout << scene->gravity[j] << " ";
-    // std::cout << "\n";
+    // GRAVITY
+    force += particle->mass * scene->gravity;
 
-    // std::cout << particle->drag << "\n";
-
-    // for (int j = 0; j < 3; j++)
-    //   std::cout << particle->velocity[j] << " ";
-    // std::cout << "\n";
-
-    force += particle->mass * scene->gravity; //gravity
+    // DRAG
     force += -particle->drag * particle->velocity;
-    //fd = -k_drag * v
+
+    // SINK
+    for (int j = 0; j < scene->NParticleSinks(); j++) {
+      R3ParticleSink *sink = scene->ParticleSink(j);
+      //spheres
+      if(sink->shape->type == R3_SPHERE_SHAPE){
+        R3Sphere *sphere = sink->shape->sphere;
+        R3Vector to_sink = sphere->Center()-particle->position;
+        double d = to_sink.Length() - sphere->Radius();
+        
+        if(d > 0){
+          double ca = sink->constant_attenuation;
+          double la = sink->linear_attenuation;
+          double qa = sink->quadratic_attenuation;
+          to_sink.Normalize();
+          to_sink *= ((sink->intensity)/(ca + (la*d) + qa*(pow(d,2))));
+          force+= to_sink;
+        }
+        else{
+          //delete
+          scene->particles.erase(scene->particles.begin() + i);
+          deleted = true;
+          break;
+        }
+      }
+    }
 
     //forward Euler integration
-    particle->position = particle->position + (particle->velocity * delta_time);
-    particle->velocity = particle->velocity + (delta_time * (force/particle->mass));
+    if(!deleted){
+
+      R3Point old_point = particle->position;
+      R3Vector v = (old_point + (particle->velocity * delta_time))-old_point;
+      R3Ray ray = R3Ray(old_point,v);
+      
+      //because thats the only geometry I can think of
+      vector<R3ParticleSource *>::iterator ps_iter;
+      for(ps_iter = scene->particle_sources.begin(); 
+        ps_iter != scene->particle_sources.end();
+        ++ps_iter)
+      {
+        R3ShapeType type = (*ps_iter)->shape->type;
+        if(type == R3_SPHERE_SHAPE){
+          R3Sphere *sphere = (*ps_iter)->shape->sphere;
+          R3Point ipoint;
+          R3Vector penis;
+          sphere->Intersect(penis,ipoint);
+        }
+      }
+      //intersect
+
+      particle->position = particle->position + (particle->velocity * delta_time);
+      particle->velocity = particle->velocity + (delta_time * (force/particle->mass));
+
+      //INTERSECT
+      // R3Ray(const R3Point& point, const R3Vector& vector, bool normalized = false);
+    }
+    else{
+      i--;
+      delete particle;
+      deleted=false;
+    }
     
     // std::cout << particle->position[0] << particle->position [1] << particle->position [2] << "\n";
   }

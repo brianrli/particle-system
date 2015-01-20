@@ -11,6 +11,9 @@ class R3Sphere {
   R3Sphere(const R3Sphere& sphere);
   R3Sphere(const R3Point& center, double radius);
 
+  //intersection function
+  bool Intersect(R3Vector& vector, R3Point& ipoint);
+
   // Sphere property functions/operators
   const R3Point& Center(void) const;
   const double Radius(void) const;

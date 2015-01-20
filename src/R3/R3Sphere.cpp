@@ -14,7 +14,11 @@ const R3Sphere R3null_sphere(R3Point(0.0, 0.0, 0.0), -1.0);
 const R3Sphere R3zero_sphere(R3Point(0.0, 0.0, 0.0), 0.0);
 const R3Sphere R3unit_sphere(R3Point(0.0, 0.0, 0.0), 1.0);
 
-
+bool R3Sphere::
+Intersect(R3Vector& vector, R3Point& ipoint)
+{
+  return false; 
+}
 
 R3Sphere::
 R3Sphere(void)
