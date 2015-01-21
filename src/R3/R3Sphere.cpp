@@ -15,9 +15,35 @@ const R3Sphere R3zero_sphere(R3Point(0.0, 0.0, 0.0), 0.0);
 const R3Sphere R3unit_sphere(R3Point(0.0, 0.0, 0.0), 1.0);
 
 bool R3Sphere::
-Intersect(R3Vector& vector, R3Point& ipoint)
+Intersect(R3Ray& ray, double t0, R3Point& ipoint)
 {
-  return false; 
+  R3Vector d = ray.Vector();
+  d.Normalize();
+  R3Point p0 = ray.Start();
+  R3Point pc = Center();
+
+  double a = d.Dot(d);
+  double b = (2*d).Dot(p0-pc);
+  double c = ((p0-pc).Dot(p0-pc))-pow(Radius(),2);
+
+  double discriminant = (b*b)-(4*a*c);
+  if(discriminant<0) return false; //none
+
+  discriminant = sqrt(discriminant) / (2*a);
+  double t2 = b+discriminant; //exit
+  if(t2<0) return false;
+
+  double t1 = b-discriminant;
+  if(t1>0 && t1>t0){
+    ipoint = ray.Point(t1);
+  }
+  else if (t2>t0){
+    ipoint = ray.Point(t2);
+  }
+  else
+    return false;
+
+  return true;
 }
 
 R3Sphere::

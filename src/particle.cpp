@@ -198,25 +198,50 @@ void UpdateParticles(R3Scene *scene, double current_time, double delta_time, int
     //forward Euler integration
     if(!deleted){
 
+      //PARTICLE COLLISION TEST
       R3Point old_point = particle->position;
       R3Vector v = (old_point + (particle->velocity * delta_time))-old_point;
+      double d = v.Length();
       R3Ray ray = R3Ray(old_point,v);
+
+      R3Node *node = scene->root;
+      vector<R3Node *>::iterator n_iter;
+      std::cout << scene->root->children.size() << "\n";
       
-      //because thats the only geometry I can think of
-      vector<R3ParticleSource *>::iterator ps_iter;
-      for(ps_iter = scene->particle_sources.begin(); 
-        ps_iter != scene->particle_sources.end();
-        ++ps_iter)
-      {
-        R3ShapeType type = (*ps_iter)->shape->type;
-        if(type == R3_SPHERE_SHAPE){
-          R3Sphere *sphere = (*ps_iter)->shape->sphere;
-          R3Point ipoint;
-          R3Vector penis;
-          sphere->Intersect(penis,ipoint);
+      for(n_iter = node->children.begin(); n_iter != node->children.end();++n_iter){
+        
+        R3ShapeType type = (*n_iter)->shape->type;
+        
+        switch(type){
+          case R3_SPHERE_SHAPE :
+          {
+     				R3Sphere *sphere = (*ps_iter)->shape->sphere;
+	          R3Point ipoint;
+	          if(sphere->Intersect(ray,d,ipoint))
+	            std::cout << "intersect baby\n";
+          }
+          
+          default:
+            break;
         }
+
       }
-      //intersect
+      
+      // vector<R3ParticleSource *>::iterator ps_iter;
+      // for(ps_iter = scene->particle_sources.begin(); 
+      //   ps_iter != scene->particle_sources.end();
+      //   ++ps_iter)
+      // {
+      //   R3ShapeType type = (*ps_iter)->shape->type;
+        
+      //   if(type == R3_SPHERE_SHAPE){
+      //     R3Sphere *sphere = (*ps_iter)->shape->sphere;
+      //     R3Point ipoint;
+      //     if(sphere->Intersect(ray,d,ipoint))
+      //       std::cout << "intersect baby\n";
+      //   }
+
+      // }
 
       particle->position = particle->position + (particle->velocity * delta_time);
       particle->velocity = particle->velocity + (delta_time * (force/particle->mass));

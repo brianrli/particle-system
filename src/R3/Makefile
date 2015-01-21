@@ -1,4 +1,4 @@
-c#
+#
 # Makefile for R3 library.
 #
 
