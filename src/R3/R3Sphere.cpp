@@ -16,20 +16,20 @@ const R3Sphere R3zero_sphere(R3Point(0.0, 0.0, 0.0), 0.0);
 const R3Sphere R3unit_sphere(R3Point(0.0, 0.0, 0.0), 1.0);
 
 bool R3Sphere::
-Intersect(R3Ray& ray, double t0, R3Point& ipoint,R3Vector& N)
+Intersect(R3Ray& ray, double t0, double& t_final,R3Vector& N)
 {
-  // std::cout << Radius() << "\n";
 
-  R3Vector d = ray.Vector();
-  d.Normalize();
+  // R3Vector d = ray.Vector();
+  // d.Normalize();
+  R3Vector d = -R3Vector(0,0,1);
   R3Point p0 = ray.Start();
   R3Point pc = Center();
+  R3Point ipoint;
 
-  // R3Point p0 = R3Point(5,5,-3);  
+  // R3Vector d = R3Vector(0,0,1);
+  // d = -d;
+  // R3Point p0 = R3Point(5,5,-3);
   // R3Point pc = Center();
-  // R3Vector d = R3Vector(0,0,-1);
-
-  // std::cout << pc[0] << " " <<  pc[1] << " " << pc[2] << "\n";
 
   double a = d.Dot(d);
   double b = (2*d).Dot(p0-pc);
@@ -37,42 +37,52 @@ Intersect(R3Ray& ray, double t0, R3Point& ipoint,R3Vector& N)
 
   double discriminant = (b*b)-(4*a*c);
 
-  
-  // if(p0[0] == 5 && p0[1] == 5){
-  // std::cout << "*******************\n";
-  // std::cout << a << "\n";
-  // std::cout << b << "\n";
-  // std::cout << c << "\n";
-  // std::cout << "positive? " << discriminant << "\n";
+  // std::cout << "sphere intersect info " << discriminant << "\n";
+  // std::cout << "a " << a << "\n";
+  // std::cout << "b " << b << "\n";
+  // std::cout << "c " << c << "\n";
+  // std::cout <<  "t1 " << (b+sqrt(discriminant))/(2*a) << "\n"; 
+  // std::cout <<  "t2 " << (b-sqrt(discriminant))/(2*a) << "\n"; 
 
-  // std::cout << (b+sqrt(discriminant))/(2*a) << "\n";
-  // std::cout <<(b-sqrt(discriminant))/(2*a) << "\n";
-
-  // }
+  // while(1)
+  //   int b = 0;
   
-  if(discriminant<0) return false; //none
+  if(discriminant<0) 
+  {
+    return false; //none
+  }
   
   double t2 = (b+sqrt(discriminant))/(2*a); //exit
   if(t2<0) return false;
 
   double t1 = (b-sqrt(discriminant))/(2*a);
 
-  // if(p0[0] == 5 && p0[1] == 5){
-  //   std::cout << discriminant << "\n";
-  //   std::cout << d[0] << " " <<  d[1] << " " << d[2] << "\n";
-  //   std::cout << "*******************\n t1&2 " << t0 << " " << t1 << " " << t2 << "\n";
-  // }
-
-  if(t1>DBL_EPSILON && t0>t1){
+  if(t1>0 && t0>t1){
+    t_final = t1;
     ipoint = ray.Point(t1);
   }
   else if (t0>t2){
+    t_final = t2;
     ipoint = ray.Point(t2);
   }
   else
     return false;
 
-  N = (ipoint-Center())/Radius();
+  //intersection found
+  N = ipoint-Center();
+  std::cout << "sphere intersect info " << discriminant << "\n";
+  std::cout << "a " << a << "\n";
+  std::cout << "b " << b << "\n";
+  std::cout << "c " << c << "\n";
+  // std::cout << "b2 " << pow(b,2) << "\n";
+  // std::cout << "4ac " << (4*a*c) << "\n";
+  // R3Point drake = ray.Point(1.0);
+  // std::cout << " " << ipoint[0] << " " << ipoint[1] << " " << ipoint[2] <<"\n"; 
+  // std::cout << " " << drake[0] << " " << drake[1] << " " << drake[2] <<"\n"; 
+  std::cout << " " << p0[0] << " " << p0[1] << " " << p0[2] <<"\n"; 
+  std::cout << " " << d[0] << " " << d[1] << " " << d[2] <<"\n"; 
+  std::cout  << t0 << " " << t1 << " " << t2 << "\n";
+  N.Normalize();
   return true;
 }
 
