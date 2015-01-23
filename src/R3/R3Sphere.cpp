@@ -19,9 +19,9 @@ bool R3Sphere::
 Intersect(R3Ray& ray, double t0, double& t_final,R3Vector& N)
 {
 
-  // R3Vector d = ray.Vector();
-  // d.Normalize();
-  R3Vector d = -R3Vector(0,0,1);
+  R3Vector d = -ray.Vector();
+  d.Normalize();
+  // R3Vector d = -R3Vector(0,0,1);
   R3Point p0 = ray.Start();
   R3Point pc = Center();
   R3Point ipoint;
@@ -37,6 +37,12 @@ Intersect(R3Ray& ray, double t0, double& t_final,R3Vector& N)
 
   double discriminant = (b*b)-(4*a*c);
 
+  // if(abs(discriminant)<0.0000000000001){
+  //   std::cout << discriminant << "\n";
+  //   while(1)
+  //     int stall = 0;
+  // }
+
   // std::cout << "sphere intersect info " << discriminant << "\n";
   // std::cout << "a " << a << "\n";
   // std::cout << "b " << b << "\n";
@@ -48,16 +54,16 @@ Intersect(R3Ray& ray, double t0, double& t_final,R3Vector& N)
   //   int b = 0;
   
   if(discriminant<0) 
-  {
     return false; //none
-  }
   
   double t2 = (b+sqrt(discriminant))/(2*a); //exit
-  if(t2<0) return false;
+  
+  if(t2<DBL_EPSILON) 
+    return false;
 
   double t1 = (b-sqrt(discriminant))/(2*a);
 
-  if(t1>0 && t0>t1){
+  if(t1>DBL_EPSILON && t0>t1){
     t_final = t1;
     ipoint = ray.Point(t1);
   }
@@ -70,19 +76,21 @@ Intersect(R3Ray& ray, double t0, double& t_final,R3Vector& N)
 
   //intersection found
   N = ipoint-Center();
-  std::cout << "sphere intersect info " << discriminant << "\n";
-  std::cout << "a " << a << "\n";
-  std::cout << "b " << b << "\n";
-  std::cout << "c " << c << "\n";
+  N.Normalize();
+  // std::cout << "sphere intersect info " << discriminant << "\n";
+  // std::cout << "a " << a << "\n";
+  // std::cout << "b " << b << "\n";
+  // std::cout << "c " << c << "\n";
   // std::cout << "b2 " << pow(b,2) << "\n";
-  // std::cout << "4ac " << (4*a*c) << "\n";
+  // std::cout << "4ac " << (4*a*c) << "\n\n";
+  // std::cout << t_final << "\n";
+  // std::cout << t_final << "\n";
   // R3Point drake = ray.Point(1.0);
   // std::cout << " " << ipoint[0] << " " << ipoint[1] << " " << ipoint[2] <<"\n"; 
   // std::cout << " " << drake[0] << " " << drake[1] << " " << drake[2] <<"\n"; 
-  std::cout << " " << p0[0] << " " << p0[1] << " " << p0[2] <<"\n"; 
-  std::cout << " " << d[0] << " " << d[1] << " " << d[2] <<"\n"; 
-  std::cout  << t0 << " " << t1 << " " << t2 << "\n";
-  N.Normalize();
+  // std::cout << " " << p0[0] << " " << p0[1] << " " << p0[2] <<"\n"; 
+  // std::cout << " " << d[0] << " " << d[1] << " " << d[2] <<"\n"; 
+  // std::cout  << t0 << " " << t1 << " " << t2 << "\n";
   return true;
 }
 

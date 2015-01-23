@@ -229,12 +229,12 @@ void UpdateParticles(R3Scene *scene, double current_time, double delta_time, int
               R3Vector vel = particle->velocity;
               // v.Normalize();
               // v*=t; //get moment of intersection
-              std::cout << " " << vel[0] << " " << vel[1] << " " << vel[2] <<"\n";
+              // std::cout << " " << vel[0] << " " << vel[1] << " " << vel[2] <<"\n";
               // std::cout << " " << v[0] << " " << v[1] << " " << v[2] <<"\n";
               R3Vector ref = vel - (2*vel.Dot(N)*N);
               // std::cout << " " << ref[0] << " " << ref[1] << " " << ref[2] <<"\n";
               ref[N.MaxDimension()] *= particle->elasticity;
-              std::cout << " " << ref[0] << " " << ref[1] << " " << ref[2] <<"\n";
+              // std::cout << " " << ref[0] << " " << ref[1] << " " << ref[2] <<"\n";
               particle->velocity = ref;
 
               intersect = true;
@@ -248,16 +248,16 @@ void UpdateParticles(R3Scene *scene, double current_time, double delta_time, int
       }
 
       R3Point pp = particle->position;
-      if(intersect)
-        std::cout << " " << pp[0] << " " << pp[1] << " " << pp[2] <<"\n"; 
+      // if(intersect)
+      //   std::cout << " " << pp[0] << " " << pp[1] << " " << pp[2] <<"\n"; 
       
       particle->position = particle->position + (particle->velocity * delta_time);    
       pp = particle->position;
       
-      if(intersect){
-        std::cout << " " << pp[0] << " " << pp[1] << " " << pp[2] <<"\n"; 
-        std::cout << "***************************\n";
-      }
+      // if(intersect){
+      //   std::cout << " " << pp[0] << " " << pp[1] << " " << pp[2] <<"\n"; 
+      //   std::cout << "***************************\n";
+      // }
 
       particle->velocity = particle->velocity + (delta_time * (force/particle->mass));
 
