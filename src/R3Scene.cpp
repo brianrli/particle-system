@@ -7,8 +7,6 @@
 #include "R3/R3.h"
 #include "R3Scene.h"
 
-
-
 R3Scene::
 R3Scene(void)
   : gravity(0,0,0),

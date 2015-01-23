@@ -85,7 +85,6 @@ struct R3Node {
 };
 
 
-
 // Particle system definitions
 
 struct R3Particle {

@@ -5,7 +5,8 @@
 // Include files 
 
 #include "R3.h"
-
+#include <iostream>
+#include <cfloat>
 
 
 // Public variables 
@@ -15,34 +16,63 @@ const R3Sphere R3zero_sphere(R3Point(0.0, 0.0, 0.0), 0.0);
 const R3Sphere R3unit_sphere(R3Point(0.0, 0.0, 0.0), 1.0);
 
 bool R3Sphere::
-Intersect(R3Ray& ray, double t0, R3Point& ipoint)
+Intersect(R3Ray& ray, double t0, R3Point& ipoint,R3Vector& N)
 {
+  // std::cout << Radius() << "\n";
+
   R3Vector d = ray.Vector();
   d.Normalize();
   R3Point p0 = ray.Start();
   R3Point pc = Center();
+
+  // R3Point p0 = R3Point(5,5,-3);  
+  // R3Point pc = Center();
+  // R3Vector d = R3Vector(0,0,-1);
+
+  // std::cout << pc[0] << " " <<  pc[1] << " " << pc[2] << "\n";
 
   double a = d.Dot(d);
   double b = (2*d).Dot(p0-pc);
   double c = ((p0-pc).Dot(p0-pc))-pow(Radius(),2);
 
   double discriminant = (b*b)-(4*a*c);
-  if(discriminant<0) return false; //none
 
-  discriminant = sqrt(discriminant) / (2*a);
-  double t2 = b+discriminant; //exit
+  
+  // if(p0[0] == 5 && p0[1] == 5){
+  // std::cout << "*******************\n";
+  // std::cout << a << "\n";
+  // std::cout << b << "\n";
+  // std::cout << c << "\n";
+  // std::cout << "positive? " << discriminant << "\n";
+
+  // std::cout << (b+sqrt(discriminant))/(2*a) << "\n";
+  // std::cout <<(b-sqrt(discriminant))/(2*a) << "\n";
+
+  // }
+  
+  if(discriminant<0) return false; //none
+  
+  double t2 = (b+sqrt(discriminant))/(2*a); //exit
   if(t2<0) return false;
 
-  double t1 = b-discriminant;
-  if(t1>0 && t1>t0){
+  double t1 = (b-sqrt(discriminant))/(2*a);
+
+  // if(p0[0] == 5 && p0[1] == 5){
+  //   std::cout << discriminant << "\n";
+  //   std::cout << d[0] << " " <<  d[1] << " " << d[2] << "\n";
+  //   std::cout << "*******************\n t1&2 " << t0 << " " << t1 << " " << t2 << "\n";
+  // }
+
+  if(t1>DBL_EPSILON && t0>t1){
     ipoint = ray.Point(t1);
   }
-  else if (t2>t0){
+  else if (t0>t2){
     ipoint = ray.Point(t2);
   }
   else
     return false;
 
+  N = (ipoint-Center())/Radius();
   return true;
 }
 
