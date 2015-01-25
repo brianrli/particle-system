@@ -568,6 +568,9 @@ void DrawParticles(R3Scene *scene)
   // Update particles
   UpdateParticles(scene, current_time - time_lost_taking_videos, delta_time, integration_type);
 
+  //stall TROLOLOLOLOL
+  // while(1) bool lovme = true;
+
   // Generate new particles
   GenerateParticles(scene, current_time - time_lost_taking_videos, delta_time);
 

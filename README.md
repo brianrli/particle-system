@@ -8,7 +8,11 @@ Princeton COS 426 Particle System implementation
 - [x] Sphere Particle Sources
 - [x] Sphere Particle Sinks
 - [ ] Particle Scene Collisions
-	- [ ] Sphere
+	- [x] Sphere
 	- [ ] Box
 	- [ ] Mesh
-- [ ] Springs
+- [x] Springs
+
+##Comments
+Sphere-Spring collision testing is broken beyond belief.
+
