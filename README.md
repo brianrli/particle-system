@@ -14,5 +14,4 @@ Princeton COS 426 Particle System implementation
 - [x] Springs
 
 ##Comments
-Sphere-Spring collision testing is broken beyond belief.
-
+None.

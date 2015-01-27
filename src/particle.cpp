@@ -142,7 +142,7 @@ void GenerateParticles(R3Scene *scene, double current_time, double delta_time)
 
 void UpdateParticles(R3Scene *scene, double current_time, double delta_time, int integration_type)
 {
-  // Update force
+  // Pre-Calculate Springs
   std::vector<R3Vector> spring_force;
   for (int i = 0; i < scene->NParticles(); i++) 
   {
@@ -165,7 +165,9 @@ void UpdateParticles(R3Scene *scene, double current_time, double delta_time, int
 
         double rest_length = spring->rest_length;
         double ks = spring->ks;
-        double kd = spring->kd;
+        // double ks = 40;
+        // double kd = spring->kd;
+        double kd = 20;
 
         R3Point p = spring->particles[pi]->position;
         R3Point q = spring->particles[qi]->position;
@@ -232,10 +234,17 @@ void UpdateParticles(R3Scene *scene, double current_time, double delta_time, int
       // forward Euler integration
       if(!deleted){
 
+        //UPDATE VELOCITY
+        particle->velocity = particle->velocity + (delta_time * (force/particle->mass));
+
         //PARTICLE COLLISION TEST
         R3Point old_point = particle->position;
         R3Node *node = scene->root;
         vector<R3Node *>::iterator n_iter;
+        double new_time = delta_time;
+        double r_time = delta_time;
+        double time_left = delta_time;
+
         
         for(n_iter = node->children.begin(); n_iter != node->children.end();++n_iter){
           
@@ -246,23 +255,45 @@ void UpdateParticles(R3Scene *scene, double current_time, double delta_time, int
             //SPHERE COLLISIONS
             case R3_SPHERE_SHAPE :
             {
-              R3Vector v = particle->velocity * delta_time; 
-              R3Ray ray = R3Ray(old_point,v);
+              R3Vector v = particle->velocity * delta_time;
+              R3Ray ray = R3Ray(particle->position,particle->velocity);
 
        				R3Sphere *sphere = (*n_iter)->shape->sphere;
-  	          double t;
+  	          double t = 0;
               R3Vector N;
 
               //INTERSECTION
   	          if(sphere->Intersect(ray,v.Length(),t,N))
               {
-                R3Vector vel = particle->velocity;
-                R3Vector ref = vel - (2*vel.Dot(N)*N);
 
-                //scale parallel component by elasticity
-                ref[N.MaxDimension()] *= particle->elasticity; 
+                double new_time = t/v.Length() * delta_time;
+                r_time -= new_time;
+                R3Point i_point = ray.Point(t);
+
+                R3Vector vel = particle->velocity;
+
+                R3Vector normal = N;
+                R3Vector vec1 = normal;
+                vec1[0]+=1;
                 
-                particle->velocity = ref;
+                vec1.Cross(normal);
+                vec1.Normalize();
+
+                R3Vector vec2 = normal;
+                vec2.Cross(vec1);
+                vec2.Normalize();
+
+                double c1 = (normal.Length() > 0) ? normal.Length() : 1;
+                double c2 = (vec1.Length() > 0) ? vec1.Length() : 1;
+                double c3 = (vec2.Length() > 0) ? vec2.Length() : 1;
+
+                R3Vector comp1 = (vel.Dot(normal)/c1) * normal;
+                R3Vector comp2 = (vel.Dot(vec1)/c2) * vec1;
+                R3Vector comp3 = (vel.Dot(vec2)/c3) * vec2;
+                R3Vector velocity = comp2 + comp3 - (0*comp1);
+
+                particle->position = ray.Point(t);
+                particle->velocity = velocity;
               }
             }
             
@@ -271,10 +302,7 @@ void UpdateParticles(R3Scene *scene, double current_time, double delta_time, int
           }
 
         }
-        
-        //THIS TOOK 4 HOURS OF MY LIFE
-        particle->velocity = particle->velocity + (delta_time * (force/particle->mass));
-        particle->position = particle->position + (particle->velocity * delta_time);    
+        particle->position += (particle->velocity * r_time);    
       }
       else{
         i--;

@@ -28,7 +28,6 @@ Intersect(R3Ray& ray, double t0, double& t_final,R3Vector& N)
 
   // R3Vector d = R3Vector(0,0,1);
   // d = -d;
-  // R3Point p0 = R3Point(5,5,-3);
   // R3Point pc = Center();
 
   double a = d.Dot(d);
@@ -43,6 +42,21 @@ Intersect(R3Ray& ray, double t0, double& t_final,R3Vector& N)
   //     int stall = 0;
   // }
 
+  if(t_final == 100000){
+      std::cout << "sphere intersect info " << discriminant << "\n";
+      std::cout << "a " << a << "\n";
+      std::cout << "b " << b << "\n";
+      std::cout << "c " << c << "\n";
+      std::cout <<  "t1 " << (b+sqrt(discriminant))/(2*a) << "\n"; 
+      std::cout <<  "t2 " << (b-sqrt(discriminant))/(2*a) << "\n";
+      std::cout << "Origin Point: " << p0[0] << " " << p0[1] << " " << p0[2] <<"\n"; 
+      std::cout << "Direction: " << d[0] << " " << d[1] << " " << d[2] <<"\n";
+
+      R3Point x = p0+(ray.Vector()*t0);  
+      std::cout << "Final Destination: " << x[0] << " " << x[1] << " " << x[2] <<"\n\n";
+  }
+
+
   // std::cout << "sphere intersect info " << discriminant << "\n";
   // std::cout << "a " << a << "\n";
   // std::cout << "b " << b << "\n";
@@ -53,7 +67,7 @@ Intersect(R3Ray& ray, double t0, double& t_final,R3Vector& N)
   // while(1)
   //   int b = 0;
   
-  if(discriminant<0) 
+  if(discriminant<DBL_EPSILON) 
     return false; //none
   
   double t2 = (b+sqrt(discriminant))/(2*a); //exit
@@ -65,10 +79,12 @@ Intersect(R3Ray& ray, double t0, double& t_final,R3Vector& N)
 
   if(t1>DBL_EPSILON && t0>t1){
     t_final = t1;
+    // t_final = ((t1-0.01) > 0) ? t1-0.01 : 0 ;
     ipoint = ray.Point(t1);
   }
   else if (t0>t2){
     t_final = t2;
+    // t_final = ((t2-0.01) > 0) ? t2-0.01 : 0 ;
     ipoint = ray.Point(t2);
   }
   else
